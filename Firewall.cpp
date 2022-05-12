@@ -3,17 +3,21 @@
 
 using namespace Tins;
 using namespace std;
+int option;
 
-bool callback(const PDU &pdu) {
-    // Find the IP layer
-    const IP &ip = pdu.rfind_pdu<IP>();
-    // Find the TCP layer
-    const TCP &tcp = pdu.rfind_pdu<TCP>();
-    cout << ip.src_addr() << ':' << tcp.sport() << " -> "
-         << ip.dst_addr() << ':' << tcp.dport() << endl;
-    return true;
-}
+int main(){
+    cout << "Select what to do" << endl;
+    cout << "1. Enable/Disable" << endl;
+    cout << "2. Settings" << endl;
+    cout << "3. Exit" << endl << endl;
+    cin >>option;
+    if (option == 1){
 
-int main() {
-    Sniffer("wlan0").sniff_loop(callback);
+    }
+    else if (option == 2){
+
+    }
+    else if (option == 3){
+        return 0;
+    }
 }
