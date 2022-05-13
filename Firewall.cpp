@@ -1,11 +1,12 @@
 #include <iostream>
 #include <tins/tins.h>
-#include <sys/time.h>
-#include <sys/resource.h>
+#include "sys/types.h"
+#include "sys/sysinfo.h"
 
 using namespace Tins;
 using namespace std;
 int option;
+struct sysinfo memInfo;
 
 bool loop(const PDU &pdu) {
     const IP &ip = pdu.rfind_pdu<IP>();
@@ -29,7 +30,10 @@ int main(){
         Sniffer("wlan0").sniff_loop(loop);
     }
     else if (option == 2){
-
+        sysinfo (&memInfo);
+        long long physMemUsed = memInfo.totalram - memInfo.freeram;
+        physMemUsed *= memInfo.mem_unit;
+        cout << "Physical Memory Used: " << physMemUsed << endl;
     }
     else if (option == 3){
         return 0;
