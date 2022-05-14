@@ -16,16 +16,15 @@ bool loop(const PDU &pdu) {
     // Magic shit
     const IP &ip = pdu.rfind_pdu<IP>();
     const TCP &tcp = pdu.rfind_pdu<TCP>();
-    cout << ip.src_addr() << endl;
+    cout << ip.dst_addr() << endl;
     //Mem magic shit
     int err = setrlimit(RLIMIT_DATA, &limits);
     if (err == 1){
         cout << "Memory limit breached, running killswitch" << endl;
         void _exit(int status);
     }
-    //These returns arnt working
-    return ip.src_addr();
-    return ip.dst_addr();
+    return int(ip.src_addr());
+    return int(ip.dst_addr());
     return true;
 }
 
