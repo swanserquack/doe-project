@@ -1,9 +1,16 @@
+//Semi-Automatic Firewall made by swanserquack
+
+//Keep in mind I don't have any experience with C++
+//and so this is probably bad but I want to get it to work and for it to be fast and reliable.
+
+
 //Going to need to change these to files bundled with the exec maybe?
 #include <iostream>
 #include <tins/tins.h>
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
+#include <arpa/inet.h>
 
 using namespace Tins;
 using namespace std;
@@ -17,15 +24,13 @@ bool loop(const PDU &pdu) {
     // Magic shit
     const IP &ip = pdu.rfind_pdu<IP>();
     const TCP &tcp = pdu.rfind_pdu<TCP>();
-    cout << ip.dst_addr() << endl;
     //Mem magic shit
     int err = setrlimit(RLIMIT_DATA, &limits);
     if (err == 1){
         cout << "Memory limit breached, running killswitch" << endl;
         void _exit(int status);
     }
-    auto src = to_string(ip.src_addr());
-    auto dst = to_string(ip.dst_addr());
+    cout << ip.dst_addr() << endl;
     compare(src, dst);
     return true;
 }
@@ -55,4 +60,5 @@ int main(){
 
 void compare(string src, string dst){
     cout << src << endl;
+    cout << dst << endl;
 }
