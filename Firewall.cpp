@@ -5,11 +5,12 @@
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
 
-struct rlimit limits;
 using namespace Tins;
 using namespace std;
 int option;
+void compare(string src, string dst);
 struct sysinfo memInfo;
+struct rlimit limits;
 
 bool loop(const PDU &pdu) {
     limits.rlim_max = 5368709120; //Sets hard mem limit to 5Gb
@@ -23,8 +24,9 @@ bool loop(const PDU &pdu) {
         cout << "Memory limit breached, running killswitch" << endl;
         void _exit(int status);
     }
-    return int(ip.src_addr());
-    return int(ip.dst_addr());
+    auto src = to_string(ip.src_addr());
+    auto dst = to_string(ip.dst_addr());
+    compare(src, dst);
     return true;
 }
 
@@ -49,4 +51,8 @@ int main(){
             cout << "Invalid option" << endl;
         }
     }
+}
+
+void compare(string src, string dst){
+    cout << src << endl;
 }
