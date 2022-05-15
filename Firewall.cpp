@@ -30,8 +30,8 @@ bool loop(const PDU &pdu) {
         void _exit(int status);
     }
     cout << ip.dst_addr() << endl;
-    auto src = to_string(ip.src_addr());
-    auto dst = to_string(ip.dst_addr());
+    string src = to_string(ip.src_addr());
+    string dst = to_string(ip.dst_addr());
     compare(src, dst);
     return true;
 }
@@ -62,4 +62,6 @@ int main(){
 void compare(string src, string dst){
     cout << src << endl;
     cout << dst << endl;
+    src.clear();
+    dst.clear();
 }
