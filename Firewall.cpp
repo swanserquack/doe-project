@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
-#include <arpa/inet.h>
 
 using namespace Tins;
 using namespace std;
@@ -31,6 +30,8 @@ bool loop(const PDU &pdu) {
         void _exit(int status);
     }
     cout << ip.dst_addr() << endl;
+    auto src = to_string(ip.src_addr());
+    auto dst = to_string(ip.dst_addr());
     compare(src, dst);
     return true;
 }
