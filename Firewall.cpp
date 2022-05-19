@@ -8,8 +8,7 @@
 #include <iostream>
 #include <tins/tins.h>
 #include <sys/types.h>
-#include <sys/sysinfo.h>
-#include <sys/resource.h>
+#include "main.h"
 
 using namespace Tins;
 using namespace std;
@@ -19,16 +18,8 @@ struct sysinfo memInfo;
 struct rlimit limits;
 
 bool loop(const PDU &pdu) {
-    limits.rlim_max = 5368709120; //Sets hard mem limit to 5Gb
-    // Magic shit
     const IP &ip = pdu.rfind_pdu<IP>();
     const TCP &tcp = pdu.rfind_pdu<TCP>();
-    //Mem magic shit
-    int err = setrlimit(RLIMIT_DATA, &limits);
-    if (err == 1){
-        cout << "Memory limit breached, running killswitch" << endl;
-        void _exit(int status);
-    }
     cout << ip.dst_addr() << endl;
     string src = to_string(ip.src_addr());
     string dst = to_string(ip.dst_addr());
@@ -57,11 +48,4 @@ int main(){
             cout << "Invalid option" << endl;
         }
     }
-}
-
-void compare(string src, string dst){
-    cout << src << endl;
-    cout << dst << endl;
-    src.clear();
-    dst.clear();
 }
