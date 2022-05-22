@@ -3,6 +3,9 @@
 #include <sys/resource.h>
 using namespace std;
 struct rlimit limits;
+int option;
+void compare(string src, string dst);
+struct sysinfo memInfo;
 
 void compare(string src, string dst){
     limits.rlim_max = 5368709120; //Sets hard mem limit to 5Gb

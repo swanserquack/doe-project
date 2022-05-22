@@ -9,13 +9,11 @@
 #include <tins/tins.h>
 #include <sys/types.h>
 #include "main.h"
+#include <curl/curl.h>
 
 using namespace Tins;
 using namespace std;
-int option;
-void compare(string src, string dst);
-struct sysinfo memInfo;
-struct rlimit limits;
+CURL *easy_handle = curl_easy_init();
 
 bool loop(const PDU &pdu) {
     const IP &ip = pdu.rfind_pdu<IP>();
@@ -28,6 +26,8 @@ bool loop(const PDU &pdu) {
 }
 
 int main(){
+    //Will change this to the API URL later on and make sure it saves the ip list somewhere
+    curl_easy_setopt(easy_handle, CURLOPT_URL, "https://example.com");
     while (true){
         cout << "Select what to do" << endl;
         cout << "1. Enable/Disable" << endl;
