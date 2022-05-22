@@ -1,9 +1,5 @@
 //Semi-Automatic Firewall made by swanserquack
 
-//Keep in mind I don't have any experience with C++
-//and so this is probably bad but I want to get it to work and for it to be fast and reliable.
-
-
 //Going to need to change these to files bundled with the exec maybe?
 #include <iostream>
 #include <tins/tins.h>
@@ -35,11 +31,11 @@ int main(){
         cout << "3. Exit" << endl << endl;
         cin >>option;
         if (option == 1){
-            //The wlan0 is temporary and will be changed in the future
+            //The wlan0 is temporary and will be changed in the future in order to automatically detect the correct interface
             Sniffer("wlan0").sniff_loop(loop);
         }
         else if (option == 2){
-            //Need to add somekind of settings storage (maybe a file?)
+            //Need to add somekind of settings storage + actual setting ideas (maybe a file?)
         }
         else if (option == 3){
             return 0;
