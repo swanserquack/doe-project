@@ -33,3 +33,5 @@
 
 # Code Editor Stuff
 .vscode
+
+build/
