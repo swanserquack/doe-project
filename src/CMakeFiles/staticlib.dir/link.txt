@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib/libdoe-project.a CMakeFiles/staticlib.dir/Firewall.cpp.o
+/usr/bin/ranlib ../lib/libdoe-project.a

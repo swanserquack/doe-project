@@ -1,0 +1,16 @@
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/test.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/edit_cache.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/rebuild_cache.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/list_install_components.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/install.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/install/local.dir
+/home/swanser/Desktop/windows/git/doe-project/CMakeFiles/install/strip.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/staticlib.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/sharedlib.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/test.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/edit_cache.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/rebuild_cache.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/list_install_components.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/install.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/install/local.dir
+/home/swanser/Desktop/windows/git/doe-project/src/CMakeFiles/install/strip.dir
