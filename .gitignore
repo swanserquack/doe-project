@@ -31,4 +31,8 @@
 *.out
 *.app
 
+# Code Editor Stuff
 .vscode
+
+# Personal Notes
+notes.md

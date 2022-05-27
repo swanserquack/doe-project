@@ -4,8 +4,8 @@
 #include <iostream>
 #include <tins/tins.h>
 #include <sys/types.h>
-#include "main.h"
 #include <curl/curl.h>
+#include "main.h"
 
 using namespace Tins;
 using namespace std;
@@ -15,9 +15,7 @@ bool loop(const PDU &pdu) {
     const IP &ip = pdu.rfind_pdu<IP>();
     const TCP &tcp = pdu.rfind_pdu<TCP>();
     cout << ip.dst_addr() << endl;
-    string src = to_string(ip.src_addr());
-    string dst = to_string(ip.dst_addr());
-    compare(src, dst);
+    compare();
     return true;
 }
 
