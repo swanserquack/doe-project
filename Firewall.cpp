@@ -1,14 +1,10 @@
 //Semi-Automatic Firewall made by swanserquack
 
-//Going to need to change these to files bundled with the exec maybe?
+//Going to need to change these to files bundled with the exec maybe? (You can really tell I'm new to this)
 #include <iostream>
 #include <tins/tins.h>
 #include <sys/types.h>
 #include <curl/curl.h>
-#include <pcap/pcap.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <netinet/ip_icmp.h>
 #include "main.h"
 
 using namespace Tins;
@@ -21,19 +17,19 @@ void capture(){
     signal(SIGTERM, stop_capture);
     signal(SIGQUIT, stop_capture);
     handle = create_pcap_handle(device, filter);
-    get_link_header_len(handle);
     if (handle == NULL){
         cout << "Error creating handle" << endl;
         return;
     }
+    get_link_header_len(handle);
     if (linkhdrlen == 0) {
         return;
     }
-    count = 10;
-    if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) < 0) {
+    if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) == PCAP_ERROR) {
         fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
         return;
     }
+    //Won't need this but will need to return results somehow to analyse them
     stop_capture(0);
 }
 

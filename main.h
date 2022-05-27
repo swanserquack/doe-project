@@ -64,12 +64,12 @@ pcap_t* create_pcap_handle(char* device, char* filter)
     }
 
     // Convert the packet filter epxression into a packet filter binary.
-    if (pcap_compile(handle, &bpf, filter, 0, netmask) == PCAP_ERROR) {
+    if (pcap_compile(handle, &bpf, filter, 1, netmask) == PCAP_ERROR) {
         fprintf(stderr, "pcap_compile(): %s\n", pcap_geterr(handle));
         return NULL;
     }
 
-    // Bind the packet filter to the libpcap handle.
+    // Bind the packet filter to the libpcap handle.    
     if (pcap_setfilter(handle, &bpf) == PCAP_ERROR) {
         fprintf(stderr, "pcap_setfilter(): %s\n", pcap_geterr(handle));
         return NULL;
@@ -84,7 +84,7 @@ void get_link_header_len(pcap_t* handle)
  
     // Determine the datalink layer type.
     if ((linktype = pcap_datalink(handle)) == PCAP_ERROR) {
-        fprintf(stderr, "pcap_datalink(): %s\n", pcap_geterr(handle));
+        printf("pcap_datalink(): %s\n", pcap_geterr(handle));
         return;
     }
  
@@ -120,7 +120,8 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
     char srcip[256];
     char dstip[256];
  
-     // Skip the datalink layer header and get the IP header fields.
+
+    // Skip the datalink layer header and get the IP header fields.
     packetptr += linkhdrlen;
     iphdr = (struct ip*)packetptr;
     strcpy(srcip, inet_ntoa(iphdr->ip_src));
@@ -157,7 +158,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
         printf("UDP  %s:%d -> %s:%d\n", srcip, ntohs(udphdr->uh_sport),
                dstip, ntohs(udphdr->uh_dport));
         printf("%s\n", iphdrInfo);
-        printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
+	    printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
         packets += 1;
         break;
  
@@ -167,7 +168,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
         printf("%s\n", iphdrInfo);
         printf("Type:%d Code:%d ID:%d Seq:%d\n", icmphdr->icmp_type, icmphdr->icmp_code,
                ntohs(icmphdr->icmp_hun.ih_idseq.icd_id), ntohs(icmphdr->icmp_hun.ih_idseq.icd_seq));
-        printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
+	    printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n\n");
         packets += 1;
         break;
     }
