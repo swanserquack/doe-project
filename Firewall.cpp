@@ -5,18 +5,36 @@
 #include <tins/tins.h>
 #include <sys/types.h>
 #include <curl/curl.h>
+#include <pcap/pcap.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <netinet/ip_icmp.h>
 #include "main.h"
 
 using namespace Tins;
-using namespace std;
+
 CURL *easy_handle = curl_easy_init();
 
-bool loop(const PDU &pdu) {
-    const IP &ip = pdu.rfind_pdu<IP>();
-    const TCP &tcp = pdu.rfind_pdu<TCP>();
-    cout << ip.dst_addr() << endl;
-    compare();
-    return true;
+//Capture function
+void capture(){
+    signal(SIGINT, stop_capture);
+    signal(SIGTERM, stop_capture);
+    signal(SIGQUIT, stop_capture);
+    handle = create_pcap_handle(device, filter);
+    get_link_header_len(handle);
+    if (handle == NULL){
+        cout << "Error creating handle" << endl;
+        return;
+    }
+    if (linkhdrlen == 0) {
+        return;
+    }
+    count = 10;
+    if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) < 0) {
+        fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
+        return;
+    }
+    stop_capture(0);
 }
 
 int main(){
@@ -30,7 +48,8 @@ int main(){
         cin >>option;
         if (option == 1){
             //The wlan0 is temporary and will be changed in the future in order to automatically detect the correct interface
-            Sniffer("wlan0").sniff_loop(loop);
+            capture();
+            compare();
         }
         else if (option == 2){
             //Need to add somekind of settings storage + actual setting ideas (maybe a file?)
