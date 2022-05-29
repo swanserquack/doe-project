@@ -45,7 +45,6 @@ int main(){
         if (option == 1){
             //The wlan0 is temporary and will be changed in the future in order to automatically detect the correct interface
             capture();
-            compare();
         }
         else if (option == 2){
             //Need to add somekind of settings storage + actual setting ideas (maybe a file?)
