@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
+#include <string.h>
 #include <pcap/pcap.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
@@ -33,6 +34,7 @@ void compare(){
     cout << "Debugging Test" << endl;
 }
 
+//I can probably make this a single function later on
 pcap_t* create_pcap_handle(char* device, char* filter)
 {
     char errbuf[PCAP_ERRBUF_SIZE];
