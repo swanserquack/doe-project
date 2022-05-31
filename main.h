@@ -2,6 +2,7 @@
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
 #include <string.h>
+#include <signal.h>
 #include <pcap/pcap.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
@@ -22,19 +23,26 @@ char filter[256];
 void compare();
 void capture();
 struct sysinfo memInfo;
+struct rlimit limit;
 
-//Actual compare function (Need to improve the memory killswitch later)
+//This will eventually be the function to do the acutal comparion of the ip addreses
 void compare(){
-    limits.rlim_max = 5368709120; //Sets hard mem limit to 5Gb
-    int err = setrlimit(RLIMIT_DATA, &limits);
-    if (err == 1){
-        cout << "Memory limit breached, running killswitch" << endl;
-        void _exit(int status);
+    limit.rlim_cur = 5368709120; //5 Gb (Soft limit)
+    limit.rlim_max = 10737418240; //10 Gb (Hard limit)
+    if(setrlimit(RLIMIT_DATA, &limit) == -1){
+        fprintf(stderr, "&s\n", strerror(errno));
     }
-    cout << "Debugging Test" << endl;
+    else if(getrlimit(RLIMIT_STACK, &limit) == -1){
+        fprintf(stderr, "&s\n", strerror(errno));
+    }
+    else{
+        cout << "Limit set to" << limit.rlim_cur << " bytes" << endl;
+    }
 }
 
-//I can probably make this a single function later on
+
+
+//I can probably make this a single function later on (Currently going to try to make the other parts work before improving this)
 pcap_t* create_pcap_handle(char* device, char* filter)
 {
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -140,15 +148,13 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
     {
     case IPPROTO_TCP:
         tcphdr = (struct tcphdr*)packetptr;
-        printf("TCP  %s:%d -> %s:%d\n", srcip, ntohs(tcphdr->th_sport),
-               dstip, ntohs(tcphdr->th_dport));
+        printf("TCP  %s -> %s\n", srcip, dstip);
         packets += 1;
         break;
  
     case IPPROTO_UDP:
         udphdr = (struct udphdr*)packetptr;
-        printf("UDP  %s:%d -> %s:%d\n", srcip, ntohs(udphdr->uh_sport),
-               dstip, ntohs(udphdr->uh_dport));
+        printf("UDP  %s -> %s\n", srcip, dstip);
         packets += 1;
         break;
  
@@ -171,4 +177,25 @@ void stop_capture(int signo)
     }
     pcap_close(handle);
     exit(0);
+}
+
+//Network capture function
+void capture(){
+    signal(SIGINT, stop_capture);
+    signal(SIGTERM, stop_capture);
+    signal(SIGQUIT, stop_capture);
+    handle = create_pcap_handle(device, filter);
+    get_link_header_len(handle);
+    
+    if (handle == NULL or linkhdrlen == 0) {
+        return;
+    }
+
+    if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) == PCAP_ERROR) {
+        fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
+        return;
+    }
+    
+    //Won't need this but will need to return results somehow to analyse them
+    stop_capture(0);
 }

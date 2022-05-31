@@ -2,33 +2,10 @@
 
 //Going to need to change these to files bundled with the exec maybe? (You can really tell I'm new to this)
 #include <iostream>
-#include <signal.h>
-#include <sys/types.h>
 #include <curl/curl.h>
 #include "main.h"
 
 CURL *easy_handle = curl_easy_init();
-
-//Network capture functions
-void capture(){
-    signal(SIGINT, stop_capture);
-    signal(SIGTERM, stop_capture);
-    signal(SIGQUIT, stop_capture);
-    handle = create_pcap_handle(device, filter);
-    get_link_header_len(handle);
-    
-    if (handle == NULL or linkhdrlen == 0) {
-        return;
-    }
-
-    if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) == PCAP_ERROR) {
-        fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
-        return;
-    }
-    
-    //Won't need this but will need to return results somehow to analyse them
-    stop_capture(0);
-}
 
 int main(){
     //Will change this to the API URL later on and make sure it saves the ip list somewhere
@@ -42,6 +19,7 @@ int main(){
         cin >>option;
 
         if (option == 1){
+            compare();
             capture();
         }
 
