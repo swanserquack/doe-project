@@ -42,6 +42,12 @@ void compare(){
 
 
 
+
+
+
+// PCAP SECTION
+
+
 //I can probably make this a single function later on (Currently going to try to make the other parts work before improving this)
 pcap_t* create_pcap_handle(char* device, char* filter)
 {
