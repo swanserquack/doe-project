@@ -37,5 +37,5 @@
 # Personal Notes
 notes.md
 
-#A list of ip's in a json file for testing (Might not use JSON in the end but thats the most probable thing to use)
-iplist.json
+#A list of ip's in a txt file for testing (The .txt is just for testing for now, I will probably not use json in the final project)
+iplist.txt

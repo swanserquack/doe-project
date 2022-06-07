@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <sys/sysinfo.h>
 #include <sys/resource.h>
 #include <string.h>
@@ -11,7 +12,6 @@
 //Defineing a bunch of stuff
 using std::cout;
 using std::endl;
-using std::cin;
 struct rlimit limits;
 int option;
 pcap_t* handle;
@@ -20,10 +20,11 @@ int packets;
 int count = 0;
 char device[256];
 char filter[256];
-void compare();
-void capture();
+int linecount = 0;
+std::string line;
 struct sysinfo memInfo;
 struct rlimit limit;
+
 
 //This will eventually be the function to do the acutal comparion of the ip addreses
 void compare(){
@@ -41,7 +42,23 @@ void compare(){
 }
 
 
+void tcp_check(char * srcip, char * dstip){
+    cout << srcip << endl;
+    cout << dstip << endl;
+}
 
+int line_count(){
+    std::fstream test;
+    test.open("iplist.txt", std::ios::in);
+    if (test.is_open()){
+        while(!test.eof()){
+            std::getline(test,line);
+            count++;
+        }
+        test.close();
+    }
+    return count;
+}
 
 
 
@@ -155,6 +172,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
     case IPPROTO_TCP:
         tcphdr = (struct tcphdr*)packetptr;
         printf("TCP  %s -> %s\n", srcip, dstip);
+        tcp_check(srcip, dstip);
         packets += 1;
         break;
  
