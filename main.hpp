@@ -1,3 +1,4 @@
+//Need to reduce the amount of includes
 #include <iostream>
 #include <fstream>
 #include <sys/sysinfo.h>
@@ -8,36 +9,31 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
+#include <vector>
 
-//Defineing a bunch of stuff
+//Lets me use cout and endl without extra code
 using std::cout;
 using std::endl;
-struct rlimit limits;
-int option;
-pcap_t* handle;
-int linkhdrlen;
-int packets;
-int count = 0;
-char device[256];
-char filter[256];
-int linecount = 0;
-std::string line;
-struct sysinfo memInfo;
-struct rlimit limit;
 
 
 //This will eventually be the function to do the acutal comparion of the ip addreses
 void compare(){
-    limit.rlim_cur = 5368709120; //5 Gb (Soft limit)
-    limit.rlim_max = 10737418240; //10 Gb (Hard limit)
-    if(setrlimit(RLIMIT_DATA, &limit) == -1){
+
+    struct rlimit limits;
+
+    limits.rlim_cur = 5368709120; //5 Gb (Soft limit)
+    limits.rlim_max = 10737418240; //10 Gb (Hard limit)
+    if(setrlimit(RLIMIT_DATA, &limits) == -1){
         fprintf(stderr, "&s\n", strerror(errno));
     }
-    else if(getrlimit(RLIMIT_STACK, &limit) == -1){
+    else if(getrlimit(RLIMIT_STACK, &limits) == -1){
+        fprintf(stderr, "&s\n", strerror(errno));
+    }
+    else if(getrlimit(RLIMIT_MEMLOCK, &limits) == -1){
         fprintf(stderr, "&s\n", strerror(errno));
     }
     else{
-        cout << "Limit set to" << limit.rlim_cur << " bytes" << endl;
+        cout << "Limit set to" << limits.rlim_cur << " bytes" << endl;
     }
 }
 
@@ -47,23 +43,32 @@ void tcp_check(char * srcip, char * dstip){
     cout << dstip << endl;
 }
 
-int line_count(){
-    std::fstream test;
-    test.open("iplist.txt", std::ios::in);
-    if (test.is_open()){
-        while(!test.eof()){
-            std::getline(test,line);
-            count++;
-        }
-        test.close();
+
+void create_vector(std::vector<std::string> & ip_list){
+    std::ifstream in("iplist.txt");
+    if(!in){
+        cout << "Error opening file" << endl;
+        return;
     }
-    return count;
+    std::string test;
+    while(std::getline(in, test)){
+        if(test.size() > 0){
+            ip_list.push_back(test);
+        }
+    }
+    in.close();
 }
 
 
 
 // PCAP SECTION
 
+pcap_t* handle;
+int linkhdrlen;
+int packets;
+int count = 0;
+char device[256];
+char filter[256];
 
 //I can probably make this a single function later on (Currently going to try to make the other parts work before improving this)
 pcap_t* create_pcap_handle(char* device, char* filter)
