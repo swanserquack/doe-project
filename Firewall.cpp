@@ -3,6 +3,7 @@
 //Going to need to change these to files bundled with the exec maybe? (You can really tell I'm new to this)
 #include <curl/curl.h>
 #include "main.hpp"
+#include "adapter.hpp"
 
 CURL *easy_handle = curl_easy_init();
 
@@ -18,6 +19,7 @@ int main(){
 
         int option;
         
+        cout << "" << endl;
         cout << "Select what to do" << endl;
         cout << "1. Enable/Disable" << endl;
         cout << "2. Settings" << endl;
