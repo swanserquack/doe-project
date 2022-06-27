@@ -3,6 +3,7 @@
 //Going to need to change these to files bundled with the exec maybe? (You can really tell I'm new to this)
 #include <curl/curl.h>
 #include "main.hpp"
+#include "adapter.hpp"
 
 CURL *easy_handle = curl_easy_init();
 
@@ -26,6 +27,10 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
+            const char** name;
+            cout << "What would you like the interface to be named" << endl;
+            std::istream >> name;
+            adapter(1, name);
             capture();
         }
 

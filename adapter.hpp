@@ -8,7 +8,7 @@ using namespace std;
  * This will configure and bring-up a network interface called viface0
  * (or use the name passed as first argument).
  */
-int main(int argc, const char* argv[])
+int adapter(int argc, const char* argv[])
 {
     string name = "viface0";
     if (argc > 1) {
