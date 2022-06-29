@@ -1,13 +1,10 @@
 #include <iostream>
 #include <viface/viface.hpp>
 
+//Will get rid of this later
 using namespace std;
 
-/**
- * This example shows the basics to setup a virtual network interface.
- * This will configure and bring-up a network interface called viface0
- * (or use the name passed as first argument).
- */
+//The arguements are the arguements provided at the command line
 int adapter(int argc, const char* argv[])
 {
     string name = "viface0";
@@ -35,12 +32,15 @@ int adapter(int argc, const char* argv[])
 
         // Bring up interface
         iface.up();
+
+        //Prints something to indicate that the interface is available
         cout << "Interface " << name << endl;
         cout << iface.getIPv4() << endl;
         cout << iface.getMAC() << endl;
         cout << "" << endl;
     } 
     
+    //Error catching
     catch(exception const & ex) {
         cerr << ex.what() << endl;
         return -1;

@@ -19,6 +19,7 @@ int main(int argc, const char* argv[]){
 
         int option;
         
+        //Maybe I can put this into a single cout?
         cout << "" << endl;
         cout << "Select what to do" << endl;
         cout << "1. Enable/Disable" << endl;
@@ -28,6 +29,9 @@ int main(int argc, const char* argv[]){
 
         if (option == 1){
             adapter(argc, argv);
+
+            //Shouldn't I just create a linux packet filter using PF_PACKET?
+
             capture();
         }
 

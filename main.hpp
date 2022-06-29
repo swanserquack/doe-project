@@ -220,6 +220,7 @@ void capture(){
         return;
     }
 
+    //There is an error at the count arguement saying that "count" is ambiguous, still works tho. (So far)
     if (pcap_loop(handle, count, packet_handler, (u_char*)NULL) == PCAP_ERROR) {
         fprintf(stderr, "pcap_loop failed: %s\n", pcap_geterr(handle));
         return;
