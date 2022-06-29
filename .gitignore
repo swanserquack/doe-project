@@ -37,8 +37,8 @@
 # Personal Notes
 notes.md
 
-#A list of ip's in a txt file for testing (The .txt is just for testing for now, I will probably not use json in the final project)
+# A list of ip's in a txt file for testing (The .txt is just for testing for now, I will probably not use json in the final project)
 iplist.txt
 
-#A header for creating a new TUN/TAP adapter (Currently ignored)
-tun_tap.hpp
+# A folder which holds a copy of a working adapter setup
+Adapter/

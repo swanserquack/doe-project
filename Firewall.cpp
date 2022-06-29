@@ -7,7 +7,7 @@
 
 CURL *easy_handle = curl_easy_init();
 
-int main(){
+int main(int argc, const char* argv[]){
     //Will change this to the API URL later on and make sure it saves the ip list somewhere
     curl_easy_setopt(easy_handle, CURLOPT_URL, "https://example.com");
 
@@ -27,10 +27,7 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
-            const char** name;
-            cout << "What would you like the interface to be named" << endl;
-            std::istream >> name;
-            adapter(1, name);
+            adapter(argc, argv);
             capture();
         }
 

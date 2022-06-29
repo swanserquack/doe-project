@@ -35,7 +35,13 @@ int adapter(int argc, const char* argv[])
 
         // Bring up interface
         iface.up();
-    } catch(exception const & ex) {
+        cout << "Interface " << name << endl;
+        cout << iface.getIPv4() << endl;
+        cout << iface.getMAC() << endl;
+        cout << "" << endl;
+    } 
+    
+    catch(exception const & ex) {
         cerr << ex.what() << endl;
         return -1;
     }
