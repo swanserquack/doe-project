@@ -40,5 +40,5 @@ notes.md
 # A list of ip's in a txt file for testing (The .txt is just for testing for now, I will probably not use json in the final project)
 iplist.txt
 
-# A folder which holds a copy of a working adapter setup (Will keep for now)
-Adapter/
+# A testing file to try to use the netfilter sdk to setup filters
+test.cpp
