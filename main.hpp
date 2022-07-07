@@ -6,10 +6,16 @@
 #include <string.h>
 #include <signal.h>
 #include <pcap/pcap.h>
+#include <curl/curl.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
 #include <vector>
+#include <stdlib.h>
+#include <PcapLiveDeviceList.h>
+#include <SystemUtils.h>
+
+
 
 //Lets me use cout and endl without extra code
 using std::cout;
@@ -35,12 +41,6 @@ void compare(){
     else{
         cout << "Limit set to" << limits.rlim_cur << " bytes" << endl;
     }
-}
-
-
-void tcp_check(char * srcip, char * dstip){
-    cout << srcip << endl;
-    cout << dstip << endl;
 }
 
 
@@ -177,7 +177,6 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *packethdr, const u_c
     case IPPROTO_TCP:
         tcphdr = (struct tcphdr*)packetptr;
         printf("TCP  %s -> %s\n", srcip, dstip);
-        tcp_check(srcip, dstip);
         packets += 1;
         break;
  
@@ -228,4 +227,50 @@ void capture(){
     
     //Won't need this but will need to return results somehow to analyse them
     stop_capture(0);
+}
+
+
+
+// PCAP-++
+
+void netfil(){
+    pcpp::IPFilter ipFilter("1.1.1.1", pcpp::SRC);
+}
+
+//CURL
+
+
+//Callback to turn the response from the website into a string
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+int fileupdate(std::string readBuffer){
+    std::ofstream myfile;
+    myfile.open ("iplist.txt");
+    myfile << readBuffer;
+    myfile.close();
+    return 0;
+}
+
+
+int download(void)
+{
+  CURL *curl;
+  CURLcode res;
+  std::string readBuffer;
+
+  curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+
+    fileupdate(readBuffer);
+  }
+  return 0;
 }
