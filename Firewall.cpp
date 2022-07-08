@@ -7,9 +7,8 @@ int main(){
     download();
 
     //Creates the vector and fill it with the data from the file
-    std::vector <std::string> ip_list;
     create_vector(ip_list);
-
+    netfilter(ip_list);
     while (true){
 
         int option;
@@ -23,8 +22,6 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
-
-            capture();
         }
 
         else if (option == 2){
