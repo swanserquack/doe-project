@@ -8,7 +8,6 @@ int main(){
 
     //Creates the vector and fill it with the data from the file
     create_vector(ip_list);
-    netfilter(ip_list);
     while (true){
 
         int option;
@@ -22,6 +21,7 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
+            netfilter(ip_list);
         }
 
         else if (option == 2){

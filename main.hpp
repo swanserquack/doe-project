@@ -65,6 +65,9 @@ void create_vector(std::vector<std::string> & ip_list){
 // PCAP-++
 void netfilter(std::vector<std::string> & ip_list){
     cout << ip_list.size() << endl;
+    for (int i = 0; i < ip_list.size(); i++){
+        cout << ip_list[i] << endl;
+    }
 }
 
 
