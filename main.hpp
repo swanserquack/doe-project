@@ -1,15 +1,4 @@
-//Need to reduce the amount of includes
-#include <iostream>
-#include <fstream>
-#include <sys/sysinfo.h>
-#include <sys/resource.h>
-#include <string.h>
-#include <signal.h>
-#include <curl/curl.h>
-#include <vector>
-#include <stdlib.h>
-#include <PcapLiveDeviceList.h>
-#include <SystemUtils.h>
+#include "include.hpp"
 
 
 //Lets me use cout and endl without extra code
@@ -39,7 +28,6 @@ void compare(){
 
 
 std::vector <std::string> ip_list;
-
 void create_vector(std::vector<std::string> & ip_list){
     std::ifstream in("iplist.txt");
     if(!in){
@@ -62,15 +50,52 @@ void create_vector(std::vector<std::string> & ip_list){
 
 
 
-// PCAP-++
-void netfilter(std::vector<std::string> & ip_list){
-    cout << ip_list.size() << endl;
-    for (int i = 0; i < ip_list.size(); i++){
-        cout << ip_list[i] << endl;
+// PCAP++
+
+std::string adapter(){
+    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    sockaddr_in loopback;
+
+    if (sock == -1) {
+        std::cerr << "Could not socket\n";
+        return "-1";
+    }
+
+    std::memset(&loopback, 0, sizeof(loopback));
+    loopback.sin_family = AF_INET;
+    loopback.sin_addr.s_addr = 1337;   // can be any IP address
+    loopback.sin_port = htons(9);      // using debug port
+
+    if (connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback)) == -1) {
+        close(sock);
+        std::cerr << "Could not connect\n";
+        return "-1";
+    }
+
+    socklen_t addrlen = sizeof(loopback);
+    if (getsockname(sock, reinterpret_cast<sockaddr*>(&loopback), &addrlen) == -1) {
+        close(sock);
+        std::cerr << "Could not getsockname\n";
+        return "-1";
+    }
+
+    close(sock);
+
+    char buf[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == 0x0) {
+        std::cerr << "Could not inet_ntop\n";
+        return "-1";
+    } 
+    else {
+        std::string str(buf);
+        return str;
     }
 }
 
-
+void notify(){
+    std::string str = adapter();
+    std::cout << "Adapter: " << str << std::endl;
+}
 
 
 //CURL
@@ -92,21 +117,23 @@ int fileupdate(std::string readBuffer){
 }
 
 
-int download()
+void download(int signum)
 {
-  CURL *curl;
-  CURLcode res;
-  std::string readBuffer;
+    CURL *curl;
+    CURLcode res;
+    std::string readBuffer;
 
-  curl = curl_easy_init();
-  if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
+    curl = curl_easy_init();
 
-    fileupdate(readBuffer);
-  }
-  return 0;
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+        fileupdate(readBuffer);
+    }
+    signal(SIGALRM,download);
+    alarm(1800);
+
 }

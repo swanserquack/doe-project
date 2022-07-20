@@ -40,5 +40,5 @@ notes.md
 # A list of ip's in a txt file for testing (The .txt is just for testing for now, I will probably not use json in the final project)
 iplist.txt
 
-#Test file
-test.cpp
+#Tests directory
+tests/

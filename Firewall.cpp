@@ -4,7 +4,7 @@
 
 int main(){
 
-    download();
+    download(14);
 
     //Creates the vector and fill it with the data from the file
     create_vector(ip_list);
@@ -21,7 +21,7 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
-            netfilter(ip_list);
+            notify();
         }
 
         else if (option == 2){
