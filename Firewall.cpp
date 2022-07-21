@@ -21,7 +21,7 @@ int main(){
         std::cin >> option;
 
         if (option == 1){
-            notify();
+            notify(ip_list);
         }
 
         else if (option == 2){

@@ -5,6 +5,76 @@
 using std::cout;
 using std::endl;
 
+//Struct
+
+struct PacketStats
+{
+	int ethPacketCount;
+	int ipv4PacketCount;
+	int ipv6PacketCount;
+	int tcpPacketCount;
+	int udpPacketCount;
+	int dnsPacketCount;
+	int httpPacketCount;
+	int sslPacketCount;
+
+
+	/**
+	 * Clear all stats
+	 */
+	void clear() { ethPacketCount = 0; ipv4PacketCount = 0; ipv6PacketCount = 0; tcpPacketCount = 0; udpPacketCount = 0; tcpPacketCount = 0; dnsPacketCount = 0; httpPacketCount = 0; sslPacketCount = 0; }
+
+	/**
+	 * C'tor
+	 */
+	PacketStats() { clear(); }
+
+	/**
+	 * Collect stats from a packet
+	 */
+	void consumePacket(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::Ethernet))
+			ethPacketCount++;
+		if (packet.isPacketOfType(pcpp::IPv4))
+			ipv4PacketCount++;
+		if (packet.isPacketOfType(pcpp::IPv6))
+			ipv6PacketCount++;
+		if (packet.isPacketOfType(pcpp::TCP))
+			tcpPacketCount++;
+		if (packet.isPacketOfType(pcpp::UDP))
+			udpPacketCount++;
+		if (packet.isPacketOfType(pcpp::DNS))
+			dnsPacketCount++;
+		if (packet.isPacketOfType(pcpp::HTTP))
+			httpPacketCount++;
+		if (packet.isPacketOfType(pcpp::SSL))
+			sslPacketCount++;
+	}
+
+	/**
+	 * Print stats to console
+	 */
+	void printToConsole()
+	{
+		std::cout
+			<< "Ethernet packet count: " << ethPacketCount << std::endl
+			<< "IPv4 packet count:     " << ipv4PacketCount << std::endl
+			<< "IPv6 packet count:     " << ipv6PacketCount << std::endl
+			<< "TCP packet count:      " << tcpPacketCount << std::endl
+			<< "UDP packet count:      " << udpPacketCount << std::endl
+			<< "DNS packet count:      " << dnsPacketCount << std::endl
+			<< "HTTP packet count:     " << httpPacketCount << std::endl
+			<< "SSL packet count:      " << sslPacketCount << std::endl;
+	}
+};
+
+
+
+
+
+
+
 //This will eventually be the function to do the acutal comparion of the ip addreses
 void compare(){
 
@@ -44,9 +114,6 @@ void create_vector(std::vector<std::string> & ip_list){
 }
 
 
-//    signal(SIGINT, stop_capture);
-//    signal(SIGTERM, stop_capture);
-//    signal(SIGQUIT, stop_capture);
 
 
 
@@ -58,7 +125,7 @@ std::string adapter(){
 
     if (sock == -1) {
         std::cerr << "Could not socket\n";
-        return "-1";
+        return "-1"; // Need to make a handler for this
     }
 
     std::memset(&loopback, 0, sizeof(loopback));
@@ -92,10 +159,56 @@ std::string adapter(){
     }
 }
 
-void notify(){
-    std::string str = adapter();
-    std::cout << "Adapter: " << str << std::endl;
+static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
+{
+	// extract the stats object form the cookie
+	PacketStats* stats = (PacketStats*)cookie;
+
+	// parsed the raw packet
+	pcpp::Packet parsedPacket(packet);
+
+	// collect stats from packet
+	stats->consumePacket(parsedPacket);
 }
+
+
+int notify(std::vector<std::string> & ip_list){
+    std::string interfaceIPAddr = adapter();
+    pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
+    if (dev == NULL){
+        std::cerr << "Could not find interface with IPv4 address of '" << interfaceIPAddr << "'" << endl;
+        return 1;
+    }
+    std::cout
+		<< "Interface info:" << std::endl
+		<< "   Interface name:        " << dev->getName() << std::endl // get interface name
+		<< "   Interface description: " << dev->getDesc() << std::endl // get interface description
+		<< "   MAC address:           " << dev->getMacAddress() << std::endl // get interface MAC address
+		<< "   Default gateway:       " << dev->getDefaultGateway() << std::endl // get default gateway
+		<< "   Interface MTU:         " << dev->getMtu() << std::endl; // get interface MTU
+
+	if (dev->getDnsServers().size() > 0)
+		std::cout << "   DNS server:            " << dev->getDnsServers().at(0) << std::endl;
+    
+    if (!dev->open()) {
+        std::cerr << "Could not open device " << dev->getName() << std::endl;
+        return 1;
+    }
+    PacketStats stats;
+    pcpp::IPFilter filter("1.1.1.1", pcpp::SRC);
+    dev->setFilter(filter);
+    dev->startCapture(onPacketArrives, &stats);
+    pcpp::multiPlatformSleep(10);
+    dev->stopCapture();
+    std::cout << "Results:" << std::endl;
+	stats.printToConsole();
+    dev->close();
+    return 0;
+
+}
+
+
+
 
 
 //CURL
@@ -120,7 +233,6 @@ int fileupdate(std::string readBuffer){
 void download(int signum)
 {
     CURL *curl;
-    CURLcode res;
     std::string readBuffer;
 
     curl = curl_easy_init();
@@ -129,7 +241,6 @@ void download(int signum)
         curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         fileupdate(readBuffer);
     }
