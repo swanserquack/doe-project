@@ -75,8 +75,8 @@ struct PacketStats
 
 
 
-//This will eventually be the function to do the acutal comparion of the ip addreses
-void compare(){
+//THIS NEEDS TO BE IMPROVED TO BE MORE EFFICIENT AND BETTER
+void mem(){
 
     struct rlimit limits;
 
@@ -92,7 +92,7 @@ void compare(){
         fprintf(stderr, "&s\n", strerror(errno));
     }
     else{
-        cout << "Limit set to" << limits.rlim_cur << " bytes" << endl;
+        cout << "Limit set to " << limits.rlim_cur << " bytes" << endl;
     }
 }
 
@@ -172,35 +172,32 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 }
 
 
-int notify(std::vector<std::string> & ip_list){
+int filtersetup(std::vector<std::string> & ip_list){
+    PacketStats stats;
+
     std::string interfaceIPAddr = adapter();
+
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
+
     if (dev == NULL){
         std::cerr << "Could not find interface with IPv4 address of '" << interfaceIPAddr << "'" << endl;
         return 1;
     }
-    std::cout
-		<< "Interface info:" << std::endl
-		<< "   Interface name:        " << dev->getName() << std::endl // get interface name
-		<< "   Interface description: " << dev->getDesc() << std::endl // get interface description
-		<< "   MAC address:           " << dev->getMacAddress() << std::endl // get interface MAC address
-		<< "   Default gateway:       " << dev->getDefaultGateway() << std::endl // get default gateway
-		<< "   Interface MTU:         " << dev->getMtu() << std::endl; // get interface MTU
 
-	if (dev->getDnsServers().size() > 0)
-		std::cout << "   DNS server:            " << dev->getDnsServers().at(0) << std::endl;
+    cout << "   Interface name:        " << dev->getName() << endl; // get interface name
+
     
     if (!dev->open()) {
-        std::cerr << "Could not open device " << dev->getName() << std::endl;
+        std::cerr << "Could not open device " << dev->getName() << endl;
         return 1;
     }
-    PacketStats stats;
-    pcpp::IPFilter filter("1.1.1.1", pcpp::SRC);
+
+    pcpp::IPFilter filter("8.8.8.8", pcpp::SRC); //Test filter for now
     dev->setFilter(filter);
     dev->startCapture(onPacketArrives, &stats);
     pcpp::multiPlatformSleep(10);
     dev->stopCapture();
-    std::cout << "Results:" << std::endl;
+    cout << "Results:" << endl;
 	stats.printToConsole();
     dev->close();
     return 0;
@@ -211,7 +208,7 @@ int notify(std::vector<std::string> & ip_list){
 
 
 
-//CURL
+//CURL (WORKS AGAINNNNNNNN)
 
 
 //Callback to turn the response from the website into a string
@@ -233,6 +230,7 @@ int fileupdate(std::string readBuffer){
 void download(int signum)
 {
     CURL *curl;
+    CURLcode res;
     std::string readBuffer;
 
     curl = curl_easy_init();
@@ -241,10 +239,10 @@ void download(int signum)
         curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         fileupdate(readBuffer);
     }
-    signal(SIGALRM,download);
+    signal(SIGALRM, download);
     alarm(1800);
-
 }

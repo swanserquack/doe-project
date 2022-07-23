@@ -3,11 +3,16 @@
 
 
 int main(){
-
+    if (getuid()) {
+        cout << "You must be root to run this program. Try again running as root." << endl;
+        return 0;
+    }
+    mem();
     download(14);
 
     //Creates the vector and fill it with the data from the file
     create_vector(ip_list);
+
     while (true){
 
         int option;
@@ -16,24 +21,19 @@ int main(){
         cout << "" << endl;
         cout << "Select what to do" << endl;
         cout << "1. Enable/Disable" << endl;
-        cout << "2. Settings" << endl;
-        cout << "3. Exit" << endl << endl;
+        cout << "2. Exit" << endl << endl;
         std::cin >> option;
 
         if (option == 1){
-            notify(ip_list);
+            filtersetup(ip_list);
         }
 
         else if (option == 2){
-            //Need to add somekind of settings storage + actual setting ideas (maybe a file?)
-        }
-
-        else if (option == 3){
             return 0;
         }
 
         else{
-            cout << "Invalid option" << endl;
+            cout << endl << "Invalid option" << endl;
         }
     }
 }
