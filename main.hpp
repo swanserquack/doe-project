@@ -172,6 +172,7 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 }
 
 
+//GOT FOUR MEMORY LEAKS HERE (FUCK)
 int filtersetup(std::vector<std::string> & ip_list){
     PacketStats stats;
 
