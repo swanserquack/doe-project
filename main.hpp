@@ -169,15 +169,19 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 
 	// collect stats from packet
 	stats->consumePacket(parsedPacket);
+
+    cout << "Packet arrived" << endl;
 }
 
 
-//GOT FOUR MEMORY LEAKS HERE (FUCK)
+
 int filtersetup(std::vector<std::string> & ip_list){
     PacketStats stats;
+    std::vector<pcpp::GeneralFilter*> portFilterVec;
 
     std::string interfaceIPAddr = adapter();
 
+    //getInstance causes memory leak will need to look into it later
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
 
     if (dev == NULL){
@@ -192,8 +196,18 @@ int filtersetup(std::vector<std::string> & ip_list){
         std::cerr << "Could not open device " << dev->getName() << endl;
         return 1;
     }
-    pcpp::IPFilter filter("8.8.8.8", pcpp::SRC);
-    dev->setFilter(filter);
+
+    for (int i = 0; i < ip_list.size(); i++){
+        portFilterVec.push_back(new pcpp::IPFilter(ip_list[i], pcpp::SRC_OR_DST));
+        cout << ip_list[i] << endl;
+    }
+    
+    pcpp::OrFilter orfilter(portFilterVec);
+    if (!dev->setFilter(orfilter)){
+        std::cerr << "Could not set filter, try running the program again as root" << endl;
+        return 1;
+    }
+    
     dev->startCapture(onPacketArrives, &stats);
     pcpp::multiPlatformSleep(10);
     dev->stopCapture();
