@@ -192,8 +192,7 @@ int filtersetup(std::vector<std::string> & ip_list){
         std::cerr << "Could not open device " << dev->getName() << endl;
         return 1;
     }
-
-    pcpp::IPFilter filter("8.8.8.8", pcpp::SRC); //Test filter for now
+    pcpp::IPFilter filter("8.8.8.8", pcpp::SRC);
     dev->setFilter(filter);
     dev->startCapture(onPacketArrives, &stats);
     pcpp::multiPlatformSleep(10);
