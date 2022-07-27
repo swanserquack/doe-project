@@ -5,75 +5,6 @@
 using std::cout;
 using std::endl;
 
-//Struct
-
-struct PacketStats
-{
-	int ethPacketCount;
-	int ipv4PacketCount;
-	int ipv6PacketCount;
-	int tcpPacketCount;
-	int udpPacketCount;
-	int dnsPacketCount;
-	int httpPacketCount;
-	int sslPacketCount;
-
-
-	/**
-	 * Clear all stats
-	 */
-	void clear() { ethPacketCount = 0; ipv4PacketCount = 0; ipv6PacketCount = 0; tcpPacketCount = 0; udpPacketCount = 0; tcpPacketCount = 0; dnsPacketCount = 0; httpPacketCount = 0; sslPacketCount = 0; }
-
-	/**
-	 * C'tor
-	 */
-	PacketStats() { clear(); }
-
-	/**
-	 * Collect stats from a packet
-	 */
-	void consumePacket(pcpp::Packet& packet)
-	{
-		if (packet.isPacketOfType(pcpp::Ethernet))
-			ethPacketCount++;
-		if (packet.isPacketOfType(pcpp::IPv4))
-			ipv4PacketCount++;
-		if (packet.isPacketOfType(pcpp::IPv6))
-			ipv6PacketCount++;
-		if (packet.isPacketOfType(pcpp::TCP))
-			tcpPacketCount++;
-		if (packet.isPacketOfType(pcpp::UDP))
-			udpPacketCount++;
-		if (packet.isPacketOfType(pcpp::DNS))
-			dnsPacketCount++;
-		if (packet.isPacketOfType(pcpp::HTTP))
-			httpPacketCount++;
-		if (packet.isPacketOfType(pcpp::SSL))
-			sslPacketCount++;
-	}
-
-	/**
-	 * Print stats to console
-	 */
-	void printToConsole()
-	{
-		std::cout
-			<< "Ethernet packet count: " << ethPacketCount << std::endl
-			<< "IPv4 packet count:     " << ipv4PacketCount << std::endl
-			<< "IPv6 packet count:     " << ipv6PacketCount << std::endl
-			<< "TCP packet count:      " << tcpPacketCount << std::endl
-			<< "UDP packet count:      " << udpPacketCount << std::endl
-			<< "DNS packet count:      " << dnsPacketCount << std::endl
-			<< "HTTP packet count:     " << httpPacketCount << std::endl
-			<< "SSL packet count:      " << sslPacketCount << std::endl;
-	}
-};
-
-
-
-
-
-
 
 //THIS NEEDS TO BE IMPROVED TO BE MORE EFFICIENT AND BETTER
 void mem(){
@@ -161,22 +92,13 @@ std::string adapter(){
 
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
-	// extract the stats object form the cookie
-	PacketStats* stats = (PacketStats*)cookie;
-
-	// parsed the raw packet
-	pcpp::Packet parsedPacket(packet);
-
-	// collect stats from packet
-	stats->consumePacket(parsedPacket);
-
-    cout << "Packet arrived" << endl;
+    cout << "Packet arrived or been sent" << endl;
 }
 
 
 
 int filtersetup(std::vector<std::string> & ip_list){
-    PacketStats stats;
+
     std::vector<pcpp::GeneralFilter*> portFilterVec;
 
     std::string interfaceIPAddr = adapter();
@@ -189,7 +111,7 @@ int filtersetup(std::vector<std::string> & ip_list){
         return 1;
     }
 
-    cout << "   Interface name:        " << dev->getName() << endl; // get interface name
+    cout << "   Interface name:" << dev->getName() << endl; // get interface name
 
     
     if (!dev->open()) {
@@ -203,16 +125,16 @@ int filtersetup(std::vector<std::string> & ip_list){
     }
     
     pcpp::OrFilter orfilter(portFilterVec);
+    
     if (!dev->setFilter(orfilter)){
         std::cerr << "Could not set filter, try running the program again as root" << endl;
         return 1;
     }
-    
-    dev->startCapture(onPacketArrives, &stats);
+
+    dev->startCapture(onPacketArrives, NULL);
     pcpp::multiPlatformSleep(10);
     dev->stopCapture();
     cout << "Results:" << endl;
-	stats.printToConsole();
     dev->close();
     return 0;
 
@@ -222,7 +144,7 @@ int filtersetup(std::vector<std::string> & ip_list){
 
 
 
-//CURL (WORKS AGAINNNNNNNN)
+//CURL 
 
 
 //Callback to turn the response from the website into a string

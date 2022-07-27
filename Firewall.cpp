@@ -8,7 +8,7 @@ int main(){
         return 0;
     }
     mem();
-    //download(14);
+    download(14);
 
     //Creates the vector and fill it with the data from the file
     create_vector(ip_list);
