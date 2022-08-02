@@ -4,6 +4,7 @@
 //Lets me use cout and endl without extra code
 using std::cout;
 using std::endl;
+using pcpp::IPFilter;
 
 
 //THIS NEEDS TO BE IMPROVED TO BE MORE EFFICIENT AND BETTER
@@ -21,9 +22,6 @@ void mem(){
     }
     else if(getrlimit(RLIMIT_MEMLOCK, &limits) == -1){
         fprintf(stderr, "&s\n", strerror(errno));
-    }
-    else{
-        cout << "Limit set to " << limits.rlim_cur << " bytes" << endl;
     }
 }
 
@@ -92,6 +90,7 @@ std::string adapter(){
 
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
+    //Will add proper messaging here
     cout << "Packet arrived or been sent" << endl;
 }
 
@@ -102,6 +101,8 @@ int filtersetup(std::vector<std::string> & ip_list){
     std::vector<pcpp::GeneralFilter*> portFilterVec;
 
     std::string interfaceIPAddr = adapter();
+
+    std::string stopcapture;
 
     //getInstance causes memory leak will need to look into it later
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
@@ -120,8 +121,7 @@ int filtersetup(std::vector<std::string> & ip_list){
     }
 
     for (int i = 0; i < ip_list.size(); i++){
-        portFilterVec.push_back(new pcpp::IPFilter(ip_list[i], pcpp::SRC_OR_DST));
-        cout << ip_list[i] << endl;
+        portFilterVec.push_back(new IPFilter(ip_list[i], pcpp::SRC_OR_DST));
     }
     
     pcpp::OrFilter orfilter(portFilterVec);
@@ -132,12 +132,25 @@ int filtersetup(std::vector<std::string> & ip_list){
     }
 
     dev->startCapture(onPacketArrives, NULL);
-    pcpp::multiPlatformSleep(10);
-    dev->stopCapture();
-    cout << "Results:" << endl;
-    dev->close();
-    return 0;
-
+    cout << "Capturing packets..." << endl;
+    cout << "\nEnter 'q' to stop capture: ";
+    std::cin >> stopcapture;
+    do{
+    if (std::cin.fail()){
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    else if((stopcapture != "q") || (std::cin.get()=='\n')){
+        cout << "Invalid input, try again" << endl;
+        cout << "\nEnter 'q' to stop capture: ";
+        std::cin >> stopcapture;
+    }
+    }
+    while(!std::cin.fail() && (stopcapture != "q"));{
+        dev->stopCapture();
+        dev->close();
+        return 0;
+    }
 }
 
 
