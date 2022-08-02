@@ -42,6 +42,14 @@ jobs:
           curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
           unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
+      - name: Install pcap++
+        run: |
+        git clone https://github.com/seladb/PcapPlusPlus.git
+        sudo apt-get install libpcap-dev
+        cd PcapPlusPlus/
+        ./configure-linux.sh --default
+        make libs
+        sudo make install
       - name: Run build-wrapper
         run: |
           make
