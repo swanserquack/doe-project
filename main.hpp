@@ -15,19 +15,19 @@ void mem(){
     limits.rlim_cur = 5368709120; //5 Gb (Soft limit)
     limits.rlim_max = 10737418240; //10 Gb (Hard limit)
     if(setrlimit(RLIMIT_DATA, &limits) == -1){
-        fprintf(stderr, "&s\n", strerror(errno));
+        fprintf(stderr, "&s", "\n", strerror(errno));
     }
     else if(getrlimit(RLIMIT_STACK, &limits) == -1){
-        fprintf(stderr, "&s\n", strerror(errno));
+        fprintf(stderr, "&s"," \n", strerror(errno));
     }
     else if(getrlimit(RLIMIT_MEMLOCK, &limits) == -1){
-        fprintf(stderr, "&s\n", strerror(errno));
+        fprintf(stderr, "&s", "\n", strerror(errno));
     }
 }
 
 
 std::vector <std::string> ip_list;
-void create_vector(std::vector<std::string> & ip_list){
+void create_vector(std::vector<std::string> & ip_list_vector){
     std::ifstream in("iplist.txt");
     if(!in){
         cout << "Error opening file" << endl;
@@ -36,7 +36,7 @@ void create_vector(std::vector<std::string> & ip_list){
     std::string test;
     while(std::getline(in, test)){
         if(test.size() > 0){
-            ip_list.push_back(test);
+            ip_list_vector.push_back(test);
         }
     }
     in.close();
@@ -88,7 +88,7 @@ std::string adapter(){
     }
 }
 
-static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
+static void onPacketArrives(pcpp::RawPacket*, pcpp::PcapLiveDevice*, void*)
 {
     //Will add proper messaging here
     cout << "Packet arrived or been sent" << endl;
@@ -96,7 +96,7 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 
 
 
-int filtersetup(std::vector<std::string> & ip_list){
+int filtersetup(std::vector<std::string> & ip_list_filter){
 
     std::vector<pcpp::GeneralFilter*> portFilterVec;
 
@@ -120,8 +120,8 @@ int filtersetup(std::vector<std::string> & ip_list){
         return 1;
     }
 
-    for (int i = 0; i < ip_list.size(); i++){
-        portFilterVec.push_back(new IPFilter(ip_list[i], pcpp::SRC_OR_DST));
+    for (int i = 0; i < ip_list_filter.size(); i++){
+        portFilterVec.push_back(new IPFilter(ip_list_filter[i], pcpp::SRC_OR_DST));
     }
     
     pcpp::OrFilter orfilter(portFilterVec);
@@ -179,7 +179,7 @@ int fileupdate(std::string readBuffer){
 void download(int signum)
 {
     CURL *curl;
-    CURLcode res;
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     std::string readBuffer;
 
     curl = curl_easy_init();
@@ -189,6 +189,7 @@ void download(int signum)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         fileupdate(readBuffer);
     }
