@@ -8,4 +8,4 @@ all:
 # Clean Target
 clean:
 	rm a.o
-	rm a.out
+	rm Firewall.out
