@@ -78,7 +78,7 @@ std::string adapter(){
     close(sock);
 
     char buf[INET_ADDRSTRLEN];
-    if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == 0x0) {
+    if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == nullptr) {
         std::cerr << "Could not inet_ntop\n";
         return "-1";
     } 
@@ -107,7 +107,7 @@ int filtersetup(std::vector<std::string> & ip_list){
     //getInstance causes memory leak will need to look into it later
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
 
-    if (dev == NULL){
+    if (dev == nullptr){
         std::cerr << "Could not find interface with IPv4 address of '" << interfaceIPAddr << "'" << endl;
         return 1;
     }
@@ -131,7 +131,7 @@ int filtersetup(std::vector<std::string> & ip_list){
         return 1;
     }
 
-    dev->startCapture(onPacketArrives, NULL);
+    dev->startCapture(onPacketArrives, nullptr);
     cout << "Capturing packets..." << endl;
     cout << "\nEnter 'q' to stop capture: ";
     std::cin >> stopcapture;
@@ -188,7 +188,7 @@ void download(int signum)
         curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
+        curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         curl_easy_cleanup(curl);
         fileupdate(readBuffer);
     }
