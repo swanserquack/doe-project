@@ -44,9 +44,8 @@ jobs:
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
       - name: Install pcap++
         run: |
-          sudo apt install git
           git clone https://github.com/seladb/PcapPlusPlus.git
-          sudo apt-get install libpcap-dev
+          sudo apt-get install libpcap-dev libcurl4-openssl-dev
           cd PcapPlusPlus/
           ./configure-linux.sh --default
           make libs
