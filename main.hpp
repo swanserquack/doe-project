@@ -26,8 +26,9 @@ void mem(){
 }
 
 
+
 std::vector <std::string> ip_list;
-void create_vector(std::vector<std::string> & ip_list_vector){
+void create_vector(){
     std::ifstream in("iplist.txt");
     if(!in){
         cout << "Error opening file" << endl;
@@ -36,7 +37,7 @@ void create_vector(std::vector<std::string> & ip_list_vector){
     std::string test;
     while(std::getline(in, test)){
         if(test.size() > 0){
-            ip_list_vector.push_back(test);
+            ip_list.push_back(test);
         }
     }
     in.close();
@@ -178,21 +179,21 @@ int fileupdate(std::string readBuffer){
 
 void download(int signum)
 {
+    std::string readBuffer;
     CURL *curl;
     curl_global_init(CURL_GLOBAL_DEFAULT);
-    std::string readBuffer;
-
     curl = curl_easy_init();
 
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, "https://rules.emergingthreats.net/blockrules/compromised-ips.txt");
+        curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         fileupdate(readBuffer);
     }
+    create_vector();
     signal(SIGALRM, download);
     alarm(1800);
 }

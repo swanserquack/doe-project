@@ -10,9 +10,6 @@ int main(){
     mem();
     download(14);
 
-    //Creates the vector and fill it with the data from the file
-    create_vector(ip_list);
-
     while (true){
 
         int option;
@@ -34,6 +31,7 @@ int main(){
 
         else{
             cout << endl << "Invalid option" << endl;
+            break;
         }
     }
 }
