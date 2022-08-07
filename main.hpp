@@ -7,24 +7,13 @@ using std::endl;
 using pcpp::IPFilter;
 
 
-//THIS NEEDS TO BE IMPROVED TO BE MORE EFFICIENT AND BETTER
+//Think I've got this better now
 void mem(){
-
-    struct rlimit limits;
-
-    limits.rlim_cur = 5368709120; //5 Gb (Soft limit)
-    limits.rlim_max = 10737418240; //10 Gb (Hard limit)
-    if(setrlimit(RLIMIT_DATA, &limits) == -1){
-        fprintf(stderr, "&s", "\n", strerror(errno));
-    }
-    else if(getrlimit(RLIMIT_STACK, &limits) == -1){
-        fprintf(stderr, "&s"," \n", strerror(errno));
-    }
-    else if(getrlimit(RLIMIT_MEMLOCK, &limits) == -1){
-        fprintf(stderr, "&s", "\n", strerror(errno));
-    }
+    struct rlimit rl;
+    rl.rlim_cur = 2147483648;
+    rl.rlim_max = 5368709120;
+    setrlimit (RLIMIT_AS, &rl);
 }
-
 
 
 std::vector <std::string> ip_list;
@@ -42,7 +31,6 @@ void create_vector(){
     }
     in.close();
 }
-
 
 
 
@@ -88,6 +76,7 @@ std::string adapter(){
         return str;
     }
 }
+
 
 static void onPacketArrives(pcpp::RawPacket*, pcpp::PcapLiveDevice*, void*)
 {
@@ -141,7 +130,7 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
-    else if((stopcapture != "q") || (std::cin.get()=='\n')){
+    else if((stopcapture != "q")){
         cout << "Invalid input, try again" << endl;
         cout << "\nEnter 'q' to stop capture: ";
         std::cin >> stopcapture;
@@ -160,24 +149,36 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
 
 //CURL 
 
+std::string fullfile = "iplist.txt";
+void file_write(std::string readBuffer){
+    std::fstream myfile(fullfile, std::ios::in);
+
+    if (myfile){
+        cout << "File opened good" << endl;
+        return;
+    }
+
+    myfile.clear();
+    myfile.open(fullfile, std::ios::out);
+
+    if (!myfile){
+        cout << "File could not be opened for output" << endl;
+        return;
+    }
+
+    myfile << readBuffer;
+    myfile.close();
+    return;
+}
 
 //Callback to turn the response from the website into a string
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t WriteCallback(char* contents, size_t size, size_t nmemb, std::string* userp)
 {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    (userp)->append(contents, size * nmemb);
     return size * nmemb;
 }
 
-int fileupdate(std::string readBuffer){
-    std::ofstream list;
-    list.open ("iplist.txt");
-    list << readBuffer;
-    list.close();
-    return 0;
-}
-
-
-void download(int signum)
+void download(int)
 {
     std::string readBuffer;
     CURL *curl;
@@ -191,7 +192,7 @@ void download(int signum)
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
-        fileupdate(readBuffer);
+        file_write(readBuffer);
     }
     create_vector();
     signal(SIGALRM, download);
