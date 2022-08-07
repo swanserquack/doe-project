@@ -43,13 +43,13 @@ std::string adapter(){
 
     if (sock == -1) {
         std::cerr << "Could not socket\n";
-        return "-1"; // Need to make a handler for this
+        return "-1";
     }
 
     std::memset(&loopback, 0, sizeof(loopback));
     loopback.sin_family = AF_INET;
     loopback.sin_addr.s_addr = 1337;   // can be any IP address
-    loopback.sin_port = htons(9);      // using debug port
+    loopback.sin_port = htons(9);      // using the debug port
 
     if (connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback)) == -1) {
         close(sock);
@@ -92,6 +92,11 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
 
     std::string interfaceIPAddr = adapter();
 
+    if (interfaceIPAddr == "-1") {
+        std::cerr << "An error occured in the ip address getting, try changing network types, check you have internet and if nothing works open an issue on github.\n" << endl;
+        return EXIT_FAILURE;
+    }
+
     std::string stopcapture;
 
     //getInstance causes memory leak will need to look into it later
@@ -101,9 +106,6 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
         std::cerr << "Could not find interface with IPv4 address of '" << interfaceIPAddr << "'" << endl;
         return 1;
     }
-
-    cout << "   Interface name:" << dev->getName() << endl; // get interface name
-
     
     if (!dev->open()) {
         std::cerr << "Could not open device " << dev->getName() << endl;
@@ -130,7 +132,7 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
-    else if((stopcapture != "q")){
+    else if(stopcapture != "q"){
         cout << "Invalid input, try again" << endl;
         cout << "\nEnter 'q' to stop capture: ";
         std::cin >> stopcapture;
@@ -174,7 +176,7 @@ void file_write(std::string readBuffer){
 //Callback to turn the response from the website into a string
 static size_t WriteCallback(char* contents, size_t size, size_t nmemb, std::string* userp)
 {
-    (userp)->append(contents, size * nmemb);
+    userp->append(contents, size * nmemb);
     return size * nmemb;
 }
 

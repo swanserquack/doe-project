@@ -23,6 +23,10 @@ int main(){
 
         if (option == 1){
             filtersetup(ip_list);
+            if (filtersetup(ip_list) == -1){
+                cout << "Some kind of error occured, you should have got an error message. If you got no message open an issue on github." << endl;
+                return -1;
+            }
         }
 
         else if (option == 2){
