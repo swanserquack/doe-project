@@ -99,17 +99,16 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
 
     std::string stopcapture;
 
-    //getInstance causes memory leak will need to look into it later
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
 
     if (dev == nullptr){
         std::cerr << "Could not find interface with IPv4 address of '" << interfaceIPAddr << "'" << endl;
-        return 1;
+        return EXIT_FAILURE;
     }
     
     if (!dev->open()) {
         std::cerr << "Could not open device " << dev->getName() << endl;
-        return 1;
+        return EXIT_FAILURE;
     }
 
     for (int i = 0; i < ip_list_filter.size(); i++){
@@ -120,7 +119,7 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
     
     if (!dev->setFilter(orfilter)){
         std::cerr << "Could not set filter, try running the program again as root" << endl;
-        return 1;
+        return EXIT_FAILURE;
     }
 
     dev->startCapture(onPacketArrives, nullptr);
@@ -141,7 +140,7 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
     while(!std::cin.fail() && (stopcapture != "q"));{
         dev->stopCapture();
         dev->close();
-        return 0;
+        return EXIT_SUCCESS;
     }
 }
 
@@ -153,9 +152,11 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
 
 std::string fullfile = "iplist.txt";
 void file_write(std::string readBuffer){
+    std::ifstream cl;
+    cl.open("iplist.txt", std::fstream::out | std::fstream::trunc);
+    cl.close();
+    
     std::fstream fs;
-    fs.open("iplist.txt", std::fstream::out | std::fstream::app);
-    fs.close();
     fs.open("iplist.txt", std::fstream::out | std::fstream::app);
     fs << readBuffer;
     fs.close();
