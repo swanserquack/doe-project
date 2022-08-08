@@ -20,7 +20,7 @@ std::vector <std::string> ip_list;
 void create_vector(){
     std::ifstream in("iplist.txt");
     if(!in){
-        cout << "Error opening file" << endl;
+        cout << "Error opening file in input mode, check the iplist.txt file permissions" << endl;
         return;
     }
     std::string test;
@@ -153,23 +153,12 @@ int filtersetup(std::vector<std::string> & ip_list_filter){
 
 std::string fullfile = "iplist.txt";
 void file_write(std::string readBuffer){
-    std::fstream myfile(fullfile, std::ios::in);
-
-    if (myfile){
-        cout << "File opened good" << endl;
-        return;
-    }
-
-    myfile.clear();
-    myfile.open(fullfile, std::ios::out);
-
-    if (!myfile){
-        cout << "File could not be opened for output" << endl;
-        return;
-    }
-
-    myfile << readBuffer;
-    myfile.close();
+    std::fstream fs;
+    fs.open("iplist.txt", std::fstream::out | std::fstream::app);
+    fs.close();
+    fs.open("iplist.txt", std::fstream::out | std::fstream::app);
+    fs << readBuffer;
+    fs.close();
     return;
 }
 
